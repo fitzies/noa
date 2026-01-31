@@ -39,16 +39,43 @@ export async function fetchMetalPrices(): Promise<MetalPricesCache> {
   try {
     const result = await api.fetchLive('USD', ['XAU', 'XAG']);
     
-    // Validate response structure
-    if (!result || !result.rates) {
-      throw new Error('Invalid API response structure');
+    // Handle different possible response structures
+    // The API might return data directly, in .data property, or in .data.rates
+    let rates = null;
+    
+    // Check for .data.rates (Axios-style response)
+    if (result?.data?.rates) {
+      rates = result.data.rates;
+    } 
+    // Check for .data directly containing rates
+    else if (result?.data && typeof result.data === 'object') {
+      rates = result.data;
+    }
+    // Check for .rates directly
+    else if (result?.rates) {
+      rates = result.rates;
+    }
+    // Check if result itself contains the rates
+    else if (result && typeof result === 'object' && (result.XAU || result.XAG || result.xau || result.xag)) {
+      rates = result;
+    }
+    
+    if (!rates) {
+      // Safe logging without circular references
+      const safeResult = {
+        hasData: !!result?.data,
+        hasRates: !!result?.rates,
+        keys: result && typeof result === 'object' ? Object.keys(result).slice(0, 10) : [],
+        type: typeof result,
+      };
+      throw new Error(`Invalid API response structure. Response info: ${JSON.stringify(safeResult)}`);
     }
 
     const prices: MetalPricesCache = {
       lastUpdated: new Date().toISOString(),
       prices: {
-        XAU: result.rates.XAU || null,
-        XAG: result.rates.XAG || null,
+        XAU: rates.XAU || rates.xau || null,
+        XAG: rates.XAG || rates.xag || null,
       },
       base: 'USD',
     };

@@ -66,11 +66,26 @@ export async function fetchMarketNews(): Promise<NewsArticle[]> {
 
   try {
     // Fetch market news with keywords related to economics and markets
-    const url = `https://newsdata.io/api/1/latest?apikey=${apiKey}&category=business,finance&q=market OR economy OR inflation OR fed OR interest OR currency OR dollar OR monetary`;
+    // Use URLSearchParams to properly encode the query string
+    // Note: category should be a single value, not comma-separated
+    const params = new URLSearchParams({
+      apikey: apiKey,
+      category: 'business',
+      q: 'market economy inflation fed interest currency',
+    });
+    const url = `https://newsdata.io/api/1/latest?${params.toString()}`;
     const response = await fetch(url);
     
     if (!response.ok) {
-      throw new Error(`NewsData.io API error: ${response.status} ${response.statusText}`);
+      // Try to get error details from response
+      let errorDetails = '';
+      try {
+        const errorData = await response.json();
+        errorDetails = errorData.message || JSON.stringify(errorData);
+      } catch {
+        errorDetails = response.statusText;
+      }
+      throw new Error(`NewsData.io API error: ${response.status} ${response.statusText}. Details: ${errorDetails}`);
     }
 
     const data: NewsDataResponse = await response.json();

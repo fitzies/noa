@@ -58,8 +58,43 @@ export async function postTweet(content: string) {
     });
     
     return response;
-  } catch (error) {
-    throw new Error(`Failed to post tweet: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  } catch (error: any) {
+    // Extract more detailed error information
+    let errorMessage = 'Unknown error';
+    let errorDetails = '';
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    
+    // Try to extract additional error details from the error object
+    if (error?.response) {
+      errorDetails = `Response status: ${error.response.status}, statusText: ${error.response.statusText}`;
+      if (error.response.data) {
+        try {
+          const errorData = typeof error.response.data === 'string' 
+            ? error.response.data 
+            : JSON.stringify(error.response.data);
+          errorDetails += `, data: ${errorData}`;
+        } catch {
+          errorDetails += ', data: [unable to parse]';
+        }
+      }
+    } else if (error?.status) {
+      errorDetails = `Status: ${error.status}`;
+    }
+    
+    const fullError = errorDetails 
+      ? `Failed to post tweet: ${errorMessage}. ${errorDetails}`
+      : `Failed to post tweet: ${errorMessage}`;
+    
+    console.error('Twitter API error details:', {
+      message: errorMessage,
+      details: errorDetails,
+      error: error,
+    });
+    
+    throw new Error(fullError);
   }
 }
 
