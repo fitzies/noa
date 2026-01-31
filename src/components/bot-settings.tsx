@@ -197,7 +197,7 @@ export function BotSettings() {
           </Card>
 
           {/* Metal Prices Cache */}
-          <Card>
+          {/* <Card>
             <CardHeader className="pb-4">
               <CardTitle className="text-base font-medium">Metal Prices Cache</CardTitle>
               <CardDescription>Cached metal prices updated at 8am and 8pm SGT</CardDescription>
@@ -235,7 +235,7 @@ export function BotSettings() {
                 <div className="text-sm text-muted-foreground">No cached prices available</div>
               )}
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Error Message */}
           {error && (
