@@ -36,7 +36,7 @@ const DEFAULT_SETTINGS: BotSettingsData = {
 };
 
 export function BotSettings() {
-  const [postFrequency, setPostFrequency] = useState([30]);
+  const [postFrequency, setPostFrequency] = useState([150]);
   const [tone, setTone] = useState("casual");
   const [personality, setPersonality] = useState("");
   const [loading, setLoading] = useState(true);
@@ -54,7 +54,7 @@ export function BotSettings() {
           throw new Error('Failed to load settings');
         }
         const data: BotSettingsData = await response.json();
-        setPostFrequency([data.postFrequency]);
+        setPostFrequency([150]); // Always set to 150 min
         setTone(data.tone);
         setPersonality(data.personality);
       } catch (err) {
@@ -95,7 +95,7 @@ export function BotSettings() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          postFrequency: postFrequency[0],
+          postFrequency: 150, // Always save 150 min
           tone,
           personality,
         }),
@@ -115,7 +115,7 @@ export function BotSettings() {
   };
 
   const handleReset = () => {
-    setPostFrequency([DEFAULT_SETTINGS.postFrequency]);
+    setPostFrequency([150]); // Always reset to 150 min
     setTone(DEFAULT_SETTINGS.tone);
     setPersonality(DEFAULT_SETTINGS.personality);
     setError(null);
@@ -149,8 +149,9 @@ export function BotSettings() {
                 value={postFrequency}
                 onValueChange={setPostFrequency}
                 min={5}
-                max={120}
+                max={200}
                 step={5}
+                disabled={true}
               />
             </CardContent>
           </Card>
