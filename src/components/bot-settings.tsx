@@ -36,7 +36,7 @@ const DEFAULT_SETTINGS: BotSettingsData = {
 };
 
 export function BotSettings() {
-  const [postFrequency, setPostFrequency] = useState([150]);
+  const [postFrequency, setPostFrequency] = useState([180]);
   const [tone, setTone] = useState("casual");
   const [personality, setPersonality] = useState("");
   const [loading, setLoading] = useState(true);

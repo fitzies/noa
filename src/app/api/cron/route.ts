@@ -4,11 +4,10 @@ import { fetchMetalPrices, writeMetalPricesCache } from '@/lib/metal-prices';
 import { fetchRelevantNews } from '@/lib/news';
 
 /**
- * POST handler - Generates and posts a tweet from relevant precious metals news
+ * Shared cron job logic - Generates and posts a tweet from relevant precious metals news
  * Also fetches and caches metal prices (Gold and Silver)
- * This endpoint can be called by cron jobs or scheduled tasks
  */
-export async function POST(request: NextRequest) {
+async function executeCronJob() {
   try {
     // Optional: Add authentication check
     // const authHeader = request.headers.get('authorization');
@@ -119,4 +118,18 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+/**
+ * GET handler - Vercel cron jobs send GET requests by default
+ */
+export async function GET(request: NextRequest) {
+  return executeCronJob();
+}
+
+/**
+ * POST handler - Can be called manually or by other services
+ */
+export async function POST(request: NextRequest) {
+  return executeCronJob();
 }
