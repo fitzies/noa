@@ -117,6 +117,8 @@ export function readMetalPricesCache(): MetalPricesCache {
 
 /**
  * Writes metal prices to cache file
+ * Note: In serverless environments (like Vercel), file writes are not possible.
+ * This function will fail silently in production to avoid breaking the cron job.
  * @param prices - Metal prices cache object to write
  */
 export function writeMetalPricesCache(prices: MetalPricesCache): void {
@@ -129,7 +131,15 @@ export function writeMetalPricesCache(prices: MetalPricesCache): void {
 
     writeFileSync(CACHE_PATH, JSON.stringify(prices, null, 2), 'utf-8');
   } catch (error) {
-    console.error('Error writing metal prices cache:', error);
-    throw error;
+    // In serverless environments (Vercel), file system is read-only
+    // Log the error but don't throw - cache write is not critical for functionality
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    if (errorMessage.includes('EROFS') || errorMessage.includes('read-only')) {
+      // Silently skip cache write in production (serverless)
+      console.log('Skipping cache write in serverless environment');
+    } else {
+      // Log other errors but still don't throw
+      console.error('Error writing metal prices cache:', error);
+    }
   }
 }
